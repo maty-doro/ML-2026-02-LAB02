@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from src.datos.base import CargadorRostros
-from src.excepciones import EtapaPendienteAlumno
+import numpy as np
+from sklearn.datasets import fetch_lfw_people
+from src.config import DIR_CACHE
+from src.datos.base import CargadorRostros, validar_conjunto
 from src.modelos import ConjuntoRostros
 
 
@@ -26,10 +28,43 @@ class CargadorLFW(CargadorRostros):
     nombre = "lfw"
 
     def cargar(self) -> ConjuntoRostros:
-        raise EtapaPendienteAlumno(
-            "datos.lfw.CargadorLFW",
-            "Filtre identidades con al menos 20 fotos, conserve hasta 50, "
-            "reindexe y y lea alto y ancho desde images.shape. "
-            "Después, python main.py lfw evaluará PCA, LDA y Fisherfaces "
-            "con el mismo protocolo que Olivetti.",
-        )
+
+      lfw_data = fetch_lfw_people(
+        min_faces_per_person = 20,
+        resize = 0.5,
+        data_home=str(DIR_CACHE),
+        color=False
+      )
+
+      images = lfw_data.images
+      X = lfw_data.data
+      y = lfw_data.target
+      nombres_originales = lfw_data.target_names
+
+      etiquetas_unicas, conteos = np.unique(y, return_counts=True)
+
+      indices_top_50 = np.argsort(conteos)[::-1][:50]
+      clases_a_conservar = etiquetas_unicas[indices_top_50]
+
+      mascara = np.isin(y, clases_a_conservar)
+      images = images[mascara]
+      X = X[mascara]
+      y_filtrado = y[mascara]
+
+      y_nuevas_etiquetas, mapeo_inverso = np.unique(y_filtrado, return_inverse=True)
+      nombres_identidades = [nombres_originales[idx] for idx in y_nuevas_etiquetas]
+
+      alto, ancho = images.shape[1], images.shape[2]
+     
+      conjunto = ConjuntoRostros(
+          nombre=self.nombre,
+          images=images,
+          X=X,
+          y=mapeo_inverso,
+          nombres_identidades=nombres_identidades,
+          alto=alto,
+          ancho=ancho,
+      )
+
+      validar_conjunto(conjunto)
+      return conjunto
