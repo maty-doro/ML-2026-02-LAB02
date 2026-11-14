@@ -15,7 +15,7 @@ No use `pip install` ni `requirements.txt`. El entorno oficial es `environment.y
 
 ```bash
 conda env create -f environment.yml
-conda activate lab-embeddings-faciales
+conda activate lab02-ml-2026-2
 ```
 
 Para recrearlo:
