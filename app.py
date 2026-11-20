@@ -46,10 +46,6 @@ def main() -> None:
             format_func=_etiqueta_clasificador,
         )
         d = st.select_slider("Componentes (d)", options=list(DIMENSIONES))
-        st.info(
-            "Fisherfaces aplica PCA (d) seguido de LDA (hasta C - 1)"
-            "La interfaz usa solo PCA y LDA, que ya están ajustados en TRAIN."
-        )
         etiquetas = servicio.etiquetas_prueba()
         indice = st.selectbox(
             "Fotografía de prueba",
