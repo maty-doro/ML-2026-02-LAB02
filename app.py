@@ -39,7 +39,7 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Modelo")
-        embedding = st.radio("Representación", options=["pca", "lda"], format_func=_etiqueta_embedding)
+        embedding = st.radio("Representación", options=["pca", "lda", "fisherfaces"], format_func=_etiqueta_embedding)
         clasificador = st.radio(
             "Clasificador",
             options=["svm", "knn", "arbol"],
@@ -47,7 +47,7 @@ def main() -> None:
         )
         d = st.select_slider("Componentes (d)", options=list(DIMENSIONES))
         st.info(
-            "Fisherfaces queda como TODO(alumno) en src/embeddings/fisherfaces.py. "
+            "Fisherfaces aplica PCA (d) seguido de LDA (hasta C - 1)"
             "La interfaz usa solo PCA y LDA, que ya están ajustados en TRAIN."
         )
         etiquetas = servicio.etiquetas_prueba()
@@ -90,7 +90,7 @@ def main() -> None:
 
 
 def _etiqueta_embedding(nombre: str) -> str:
-    return {"pca": "PCA", "lda": "LDA"}[nombre]
+    return {"pca": "PCA", "lda": "LDA", "fisherfaces":"Fisherfaces",}[nombre]
 
 
 def _etiqueta_clasificador(nombre: str) -> str:
